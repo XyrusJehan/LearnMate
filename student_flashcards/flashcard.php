@@ -20,8 +20,15 @@ $theme = getCurrentTheme();
 $uploadMessage = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_file'])) {
     $uploadDir = 'uploads/';
+    
+    // Create directory if it doesn't exist with proper permissions
     if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0777, true);
+        mkdir($uploadDir, 0755, true); // 0755 gives owner rwx and others rx
+    }
+    
+    // Ensure directory is writable
+    if (!is_writable($uploadDir)) {
+        chmod($uploadDir, 0755);
     }
     
     $originalFilename = basename($_FILES['pdf_file']['name']);
