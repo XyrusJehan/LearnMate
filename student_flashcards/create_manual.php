@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_theme'])) {
 $db_host = 'switchyard.proxy.rlwy.net';
 $db_user = 'root';
 $db_pass = 'mfwZMSewsBKfBJQOdeOmyqMZoRGwewMI';
-$db_name = 'learnmate';
+$db_name = 'railway';
 $db_port = '47909';
 
 // Create connection
