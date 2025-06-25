@@ -4,7 +4,7 @@ $host = 'ballast.proxy.rlwy.net'; // or 'ballast.proxy.rlwy.net' for public URL
 $dbname = 'railway';
 $username = 'root';
 $password = 'mfwZMSewsBKfBJQOdeOmyqMZoRGwewMI';
-$port = 3306; // or 33262 if using the public URL
+$port = 33262; // or 33262 if using the public URL
 
 $mysqli = new mysqli($host, $username, $password, $dbname, $port);
 
