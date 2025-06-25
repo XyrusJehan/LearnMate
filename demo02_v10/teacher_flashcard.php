@@ -69,19 +69,14 @@ $classes = getAllRows($pdo, "
     WHERE c.teacher_id = ?
 ", [$teacherId]);
 
-// Database connection for manual flashcard creation
-$db_host = 'localhost';
-$db_user = 'root';
-$db_pass = '';
-$db_name = 'learnmate';
+$host = 'switchyard.proxy.rlwy.net';
+$dbname = 'railway';
+$username = 'root';
+$password = 'mfwZMSewsBKfBJQOdeOmyqMZoRGwewMI'; // From MYSQL_ROOT_PASSWORD
+$port = 47909;
 
-// Create connection
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+$mysqli = new mysqli($host, $username, $password, $dbname, $port);
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
 // Initialize messages
 $successMessage = '';
@@ -101,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $userId = $_SESSION['user_id'];
             
-            $checkStmt = $conn->prepare("SELECT id FROM folders WHERE name = ? AND user_id = ?");
+            $checkStmt = $pdo->prepare("SELECT id FROM folders WHERE name = ? AND user_id = ?");
             $checkStmt->bind_param("si", $folderName, $userId);
             $checkStmt->execute();
             $checkResult = $checkStmt->get_result();
@@ -109,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($checkResult->num_rows > 0) {
                 $_SESSION['error'] = "A folder with that name already exists";
             } else {
-                $stmt = $conn->prepare("INSERT INTO folders (name, user_id, created_at) VALUES (?, ?, NOW())");
+                $stmt = $pdo->prepare("INSERT INTO folders (name, user_id, created_at) VALUES (?, ?, NOW())");
                 $stmt->bind_param("si", $folderName, $userId);
                 
                 if ($stmt->execute()) {
@@ -136,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         try {
             // Get term and definition IDs
-            $stmt = $conn->prepare("SELECT term_id, definition_id FROM flashcards WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT term_id, definition_id FROM flashcards WHERE id = ?");
             $stmt->bind_param("i", $flashcardId);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -147,22 +142,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $definitionId = $row['definition_id'];
                 
                 // Delete from flashcards table
-                $stmt = $conn->prepare("DELETE FROM flashcards WHERE id = ?");
+                $stmt = $pdo->prepare("DELETE FROM flashcards WHERE id = ?");
                 $stmt->bind_param("i", $flashcardId);
                 $stmt->execute();
                 
                 // Delete from term_definitions table
-                $stmt = $conn->prepare("DELETE FROM term_definitions WHERE term_id = ? AND definition_id = ?");
+                $stmt = $pdo->prepare("DELETE FROM term_definitions WHERE term_id = ? AND definition_id = ?");
                 $stmt->bind_param("ii", $termId, $definitionId);
                 $stmt->execute();
                 
                 // Delete from terms table
-                $stmt = $conn->prepare("DELETE FROM terms WHERE id = ?");
+                $stmt = $pdo->prepare("DELETE FROM terms WHERE id = ?");
                 $stmt->bind_param("i", $termId);
                 $stmt->execute();
                 
                 // Delete from definitions table
-                $stmt = $conn->prepare("DELETE FROM definitions WHERE id = ?");
+                $stmt = $pdo->prepare("DELETE FROM definitions WHERE id = ?");
                 $stmt->bind_param("i", $definitionId);
                 $stmt->execute();
                 
@@ -193,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         try {
             // Get term and definition IDs
-            $stmt = $conn->prepare("SELECT term_id, definition_id FROM flashcards WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT term_id, definition_id FROM flashcards WHERE id = ?");
             $stmt->bind_param("i", $flashcardId);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -204,17 +199,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $definitionId = $row['definition_id'];
                 
                 // Update term
-                $stmt = $conn->prepare("UPDATE terms SET term_text = ? WHERE id = ?");
+                $stmt = $pdo->prepare("UPDATE terms SET term_text = ? WHERE id = ?");
                 $stmt->bind_param("si", $term, $termId);
                 $stmt->execute();
                 
                 // Update definition
-                $stmt = $conn->prepare("UPDATE definitions SET definition_text = ? WHERE id = ?");
+                $stmt = $pdo->prepare("UPDATE definitions SET definition_text = ? WHERE id = ?");
                 $stmt->bind_param("si", $definition, $definitionId);
                 $stmt->execute();
                 
                 // Update flashcard
-                $stmt = $conn->prepare("UPDATE flashcards SET front_content = ?, back_content = ? WHERE id = ?");
+                $stmt = $pdo->prepare("UPDATE flashcards SET front_content = ?, back_content = ? WHERE id = ?");
                 $stmt->bind_param("ssi", $term, $definition, $flashcardId);
                 $stmt->execute();
                 
@@ -249,7 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         try {
             // Prepare the statement
-            $stmt = $conn->prepare("UPDATE flashcards SET folder_id = ? WHERE id = ?");
+            $stmt = $pdo->prepare("UPDATE flashcards SET folder_id = ? WHERE id = ?");
             
             // Convert string IDs to array if single ID was passed
             if (!is_array($flashcardIds)) {
@@ -285,7 +280,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->begin_transaction();
         try {
             // Check folder ownership
-            $stmt = $conn->prepare("SELECT id FROM folders WHERE id = ? AND user_id = ?");
+            $stmt = $pdo->prepare("SELECT id FROM folders WHERE id = ? AND user_id = ?");
             $stmt->bind_param("ii", $folderId, $userId);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -293,7 +288,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Folder not found or not owned by user.");
             }
             // Get all flashcards in the folder
-            $stmt = $conn->prepare("SELECT id, term_id, definition_id FROM flashcards WHERE folder_id = ?");
+            $stmt = $pdo->prepare("SELECT id, term_id, definition_id FROM flashcards WHERE folder_id = ?");
             $stmt->bind_param("i", $folderId);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -302,24 +297,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $termId = $row['term_id'];
                 $definitionId = $row['definition_id'];
                 // Delete from flashcards
-                $del = $conn->prepare("DELETE FROM flashcards WHERE id = ?");
+                $del = $pdo->prepare("DELETE FROM flashcards WHERE id = ?");
                 $del->bind_param("i", $flashcardId);
                 $del->execute();
                 // Delete from term_definitions
-                $del = $conn->prepare("DELETE FROM term_definitions WHERE term_id = ? AND definition_id = ?");
+                $del = $pdo->prepare("DELETE FROM term_definitions WHERE term_id = ? AND definition_id = ?");
                 $del->bind_param("ii", $termId, $definitionId);
                 $del->execute();
                 // Delete from terms
-                $del = $conn->prepare("DELETE FROM terms WHERE id = ?");
+                $del = $pdo->prepare("DELETE FROM terms WHERE id = ?");
                 $del->bind_param("i", $termId);
                 $del->execute();
                 // Delete from definitions
-                $del = $conn->prepare("DELETE FROM definitions WHERE id = ?");
+                $del = $pdo->prepare("DELETE FROM definitions WHERE id = ?");
                 $del->bind_param("i", $definitionId);
                 $del->execute();
             }
             // Delete the folder
-            $stmt = $conn->prepare("DELETE FROM folders WHERE id = ? AND user_id = ?");
+            $stmt = $pdo->prepare("DELETE FROM folders WHERE id = ? AND user_id = ?");
             $stmt->bind_param("ii", $folderId, $userId);
             $stmt->execute();
             $conn->commit();
@@ -359,7 +354,7 @@ if (isset($_GET['folder_id'])) {
 
 // Get folder name if active
 if ($activeFolderId) {
-    $stmt = $conn->prepare("SELECT id, name FROM folders WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT id, name FROM folders WHERE id = ?");
     $stmt->bind_param("i", $activeFolderId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -380,24 +375,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['term'])) {
 
     try {
         // Insert term
-        $stmt = $conn->prepare("INSERT INTO terms (term_text) VALUES (?)");
+        $stmt = $pdo->prepare("INSERT INTO terms (term_text) VALUES (?)");
         $stmt->bind_param("s", $term);
         $stmt->execute();
         $termId = $conn->insert_id;
         
         // Insert definition
-        $stmt = $conn->prepare("INSERT INTO definitions (definition_text) VALUES (?)");
+        $stmt = $pdo->prepare("INSERT INTO definitions (definition_text) VALUES (?)");
         $stmt->bind_param("s", $definition);
         $stmt->execute();
         $definitionId = $conn->insert_id;
         
         // Create term-definition relationship
-        $stmt = $conn->prepare("INSERT INTO term_definitions (term_id, definition_id) VALUES (?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO term_definitions (term_id, definition_id) VALUES (?, ?)");
         $stmt->bind_param("ii", $termId, $definitionId);
         $stmt->execute();
         
         // Insert flashcard with folder_id
-        $stmt = $conn->prepare("INSERT INTO flashcards (folder_id, term_id, definition_id, front_content, back_content, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
+        $stmt = $pdo->prepare("INSERT INTO flashcards (folder_id, term_id, definition_id, front_content, back_content, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
         $stmt->bind_param("iisss", $folderId, $termId, $definitionId, $term, $definition);
         $stmt->execute();
         $flashcardId = $conn->insert_id;
@@ -415,7 +410,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['term'])) {
 // Get flashcards for active folder
 $flashcards = [];
 if ($activeFolderId) {
-    $stmt = $conn->prepare("
+    $stmt = $pdo->prepare("
         SELECT f.id, t.term_text, d.definition_text 
         FROM flashcards f
         JOIN terms t ON f.term_id = t.id
@@ -435,7 +430,7 @@ if ($activeFolderId) {
 $allFolders = [];
 if (isset($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
-    $stmt = $conn->prepare("SELECT id, name FROM folders WHERE user_id = ? AND is_archived = 0 ORDER BY name");
+    $stmt = $pdo->prepare("SELECT id, name FROM folders WHERE user_id = ? AND is_archived = 0 ORDER BY name");
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -449,7 +444,7 @@ if (isset($_POST['archive_folder_id'])) {
     $folderId = (int)$_POST['archive_folder_id'];
     $userId = $_SESSION['user_id'];
     $response = ["success" => false, "message" => "Unknown error."];
-    $stmt = $conn->prepare("UPDATE folders SET is_archived = 1 WHERE id = ? AND user_id = ?");
+    $stmt = $pdo->prepare("UPDATE folders SET is_archived = 1 WHERE id = ? AND user_id = ?");
     $stmt->bind_param("ii", $folderId, $userId);
     if ($stmt->execute()) {
         $response = ["success" => true, "message" => "Folder archived successfully."];
