@@ -71,13 +71,14 @@ $classes = getAllRows($pdo, "
 ", [$studentId]);
 
 // Database connection for manual flashcard creation
-$db_host = 'localhost';
+$db_host = 'switchyard.proxy.rlwy.net';
 $db_user = 'root';
-$db_pass = '';
-$db_name = 'learnmate';
+$db_pass = 'mfwZMSewsBKfBJQOdeOmyqMZoRGwewMI';
+$db_name = 'railway';
+$db_port = '47909';
 
 // Create connection
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+$conn = new mysqli($db_host, $db_user, $db_pass, $db_name,$db_port);
 
 // Check connection
 if ($conn->connect_error) {
