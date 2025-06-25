@@ -21,15 +21,14 @@ $uploadMessage = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_file'])) {
     $uploadDir = 'uploads/';
     
-    // Create uploads directory if it doesn't exist with proper permissions
+    // Create directory if it doesn't exist with proper permissions
     if (!file_exists($uploadDir)) {
-        if (!mkdir($uploadDir, 0777, true)) {
-            $uploadMessage = '<div class="alert"><i class="fas fa-exclamation-circle"></i> Failed to create upload directory.</div>';
-            error_log("Failed to create directory: " . $uploadDir);
-        } else {
-            // Set proper permissions after creation
-            chmod($uploadDir, 0777);
-        }
+        mkdir($uploadDir, 0755, true); // 0755 gives owner rwx and others rx
+    }
+    
+    // Ensure directory is writable
+    if (!is_writable($uploadDir)) {
+        chmod($uploadDir, 0755);
     }
     
     $originalFilename = basename($_FILES['pdf_file']['name']);
