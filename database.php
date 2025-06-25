@@ -1,10 +1,10 @@
 <?php
 
-$host = 'switchyard.proxy.rlwy.net'; // or 'ballast.proxy.rlwy.net' for public URL
+$host = 'switchyard.proxy.rlwy.net';
 $dbname = 'railway';
 $username = 'root';
-$password = 'mfwZMSewsBKfBJQOdeOmyqMZoRGwewMI';
-$port = 47909; // or 33262 if using the public URL
+$password = 'mfwZMSewsBKfBJQOdeOmyqMZoRGwewMI'; // From MYSQL_ROOT_PASSWORD
+$port = 47909;
 
 $mysqli = new mysqli($host, $username, $password, $dbname, $port);
 
