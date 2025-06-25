@@ -2,7 +2,7 @@
 return [
     'client_id' => '941667521524-7lj5j3far60h6alh24d6odmeqgbriosa.apps.googleusercontent.com',
     'client_secret' => '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',
-    'redirect_uri' => 'https://learnmate.up.railway.app/auth/google/callback',
+    'redirect_uri' => 'https://learnmate.up.railway.app/auth/google/callback.php',
     'scopes' => [
         'https://www.googleapis.com/auth/userinfo.email',
         'https://www.googleapis.com/auth/userinfo.profile'
