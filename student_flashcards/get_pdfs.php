@@ -10,16 +10,14 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Database configuration
-$host = 'switchyard.proxy.rlwy.net';
-$dbname = 'railway';
-$username = 'root';
-$password = 'mfwZMSewsBKfBJQOdeOmyqMZoRGwewMI'; // From MYSQL_ROOT_PASSWORD
-$port = 47909;
-
-$mysqli = new mysqli($host, $username, $password, $dbname, $port);
+$db_host = 'switchyard.proxy.rlwy.net';
+$db_user = 'root';
+$db_pass = 'mfwZMSewsBKfBJQOdeOmyqMZoRGwewMI';
+$db_name = 'learnmate';
+$db_port = '47909';
 
 // Create connection
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+$conn = new mysqli($db_host, $db_user, $db_pass, $db_name,$db_port);
 
 // Check connection
 if ($conn->connect_error) {
