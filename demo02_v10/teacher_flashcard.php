@@ -19,14 +19,18 @@ $theme = getCurrentTheme();
 // Handle PDF file upload
 $uploadMessage = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_file'])) {
-$uploadDir = 'uploads/';
-if (!file_exists($uploadDir)) {
-    if (!mkdir($uploadDir, 0755, true)) {
-        $uploadMessage = '<div class="alert"><i class="fas fa-exclamation-circle"></i> Failed to create upload directory.</div>';
-        // Log the error for debugging
-        error_log("Failed to create directory: " . $uploadDir);
+    $uploadDir = 'uploads/';
+    
+    // Create uploads directory if it doesn't exist with proper permissions
+    if (!file_exists($uploadDir)) {
+        if (!mkdir($uploadDir, 0777, true)) {
+            $uploadMessage = '<div class="alert"><i class="fas fa-exclamation-circle"></i> Failed to create upload directory.</div>';
+            error_log("Failed to create directory: " . $uploadDir);
+        } else {
+            // Set proper permissions after creation
+            chmod($uploadDir, 0777);
+        }
     }
-}
     
     $originalFilename = basename($_FILES['pdf_file']['name']);
     $targetFile = $uploadDir . uniqid() . '_' . $originalFilename;
@@ -44,7 +48,9 @@ if (!file_exists($uploadDir)) {
         $stmt->execute([$originalFilename, $targetFile, $fileSize, $_SESSION['user_id']]);
         $uploadMessage = '<div class="success"><i class="fas fa-check-circle"></i> PDF uploaded successfully!</div>';
     } else {
-        $uploadMessage = '<div class="alert"><i class="fas fa-exclamation-circle"></i> Sorry, there was an error uploading your file.</div>';
+        $uploadMessage = '<div class="alert"><i class="fas fa-exclamation-circle"></i> Sorry, there was an error uploading your file. Please check permissions.</div>';
+        error_log("Upload error: " . print_r($_FILES, true));
+        error_log("Target file: " . $targetFile);
     }
 }
 
