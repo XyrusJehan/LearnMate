@@ -19,7 +19,7 @@ $theme = getCurrentTheme();
 // Handle PDF file upload
 $uploadMessage = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_file'])) {
-    $uploadDir = 'uploads/';
+    $uploadDir = getenv('RAILWAY_VOLUME_MOUNT_PATH') ? getenv('RAILWAY_VOLUME_MOUNT_PATH') . '/uploads/' : 'uploads/';
     
     // Create directory if it doesn't exist with proper permissions
     if (!file_exists($uploadDir)) {
