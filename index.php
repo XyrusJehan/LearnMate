@@ -2036,22 +2036,16 @@ nav {
             document.querySelector(`.step-content[data-step="${currentStep}"]`).classList.remove('active');
             document.querySelector(`.step-content[data-step="${newStep}"]`).classList.add('active');
 
-function updateWizardStep(currentStep, newStep) {
-    const currentStepEl = document.querySelector(`.form-step[data-step="${currentStep}"]`);
-    const newStepEl = document.querySelector(`.form-step[data-step="${newStep}"]`);
-    
-    if (!currentStepEl || !newStepEl) {
-        console.error('Step elements not found');
-        return;
-    }
-    
-    // Update step content
-    currentStepEl.style.display = 'none';
-    newStepEl.style.display = 'block';
-    
-    // Update progress bar
-    updateProgress(newStep);
-}
+            // Update wizard steps
+            document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('active');
+            document.querySelector(`.wizard-step[data-step="${newStep}"]`).classList.add('active');
+
+            if (parseInt(currentStep) < parseInt(newStep)) {
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('completed');
+            } else {
+                document.querySelector(`.wizard-step[data-step="${newStep}"]`).classList.remove('completed');
+            }
+        }
 
         // Step Navigation
         document.querySelectorAll('.next-step').forEach(button => {
