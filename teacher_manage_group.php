@@ -24,7 +24,7 @@ $stmt = $pdo->prepare("
     SELECT g.*, 
            COUNT(gm.user_id) as member_count,
            MAX(CASE WHEN gm.user_id = ? AND gm.is_admin = 1 THEN 1 ELSE 0 END) as is_admin
-    FROM groups g
+    FROM `groups`g
     LEFT JOIN group_members gm ON g.id = gm.group_id
     WHERE g.id = ?
     GROUP BY g.id
@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Update group details
             $stmt = $pdo->prepare("
-                UPDATE groups 
+                UPDATE `groups`
                 SET name = ?, 
                     description = ?, 
                     privacy = ?, 
@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 SELECT g.*, 
                        COUNT(gm.user_id) as member_count,
                        MAX(CASE WHEN gm.user_id = ? AND gm.is_admin = 1 THEN 1 ELSE 0 END) as is_admin
-                FROM groups g
+                FROM `groups` g
                 LEFT JOIN group_members gm ON g.id = gm.group_id
                 WHERE g.id = ?
                 GROUP BY g.id
