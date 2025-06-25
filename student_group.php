@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['group-name'])) {
             $pdo->beginTransaction();
             try {
                 $stmt = $pdo->prepare("
-                    INSERT INTO groups (name, description, image_url, privacy, passcode, created_by, created_at)
+                    INSERT INTO `groups` (name, description, image_url, privacy, passcode, created_by, created_at)
                     VALUES (?, ?, ?, ?, ?, ?, NOW())
                 ");
                 $stmt->execute([
@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['group-name'])) {
         SELECT g.*, 
               (SELECT COUNT(*) FROM group_members WHERE group_id = g.id) as member_count, 
               MAX(CASE WHEN gm.user_id = ? AND gm.is_admin = 1 THEN 1 ELSE 0 END) as is_admin
-        FROM groups g
+        FROM `groups` g
         JOIN group_members gm ON g.id = gm.group_id
         WHERE gm.user_id = ? AND g.is_archived = 0
         GROUP BY g.id
@@ -121,7 +121,7 @@ $userGroups = $stmt->fetchAll();
         SELECT g.*, 
               (SELECT COUNT(*) FROM group_members WHERE group_id = g.id) as member_count,
               MAX(CASE WHEN gm.user_id = ? AND gm.is_admin = 1 THEN 1 ELSE 0 END) as is_admin
-        FROM groups g
+        FROM `groups` g
         LEFT JOIN group_members gm ON g.id = gm.group_id
         WHERE g.id NOT IN (
             SELECT gm.group_id 
@@ -142,7 +142,7 @@ if (isset($_GET['created'])) {
         SELECT g.*, 
               (SELECT COUNT(*) FROM group_members WHERE group_id = g.id) as member_count, 
               1 as is_admin
-        FROM groups g
+        FROM `groups` g
         WHERE g.id = ?
     ");
     $stmt->execute([$_GET['created']]);
@@ -154,7 +154,7 @@ $leftGroup = null;
 if (isset($_GET['left'])) {
     $stmt = $pdo->prepare("
         SELECT g.*, COUNT(gm.user_id) as member_count
-        FROM groups g
+        FROM `groups` g
         LEFT JOIN group_members gm ON g.id = gm.group_id
         WHERE g.id = ?
         GROUP BY g.id
