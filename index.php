@@ -1494,7 +1494,6 @@ nav {
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="bg-gray-800 text-white py-12">
         <div class="max-w-6xl mx-auto px-4">
             <div class="md:flex justify-between">
@@ -1546,6 +1545,18 @@ nav {
             
             <div class="border-t border-gray-700 mt-12 pt-8 text-center text-gray-400">
                 &copy; <?php echo date("Y"); ?> Learnmate. All rights reserved.
+            </div>
+            <div class="mt-8 text-center">
+                <h3 class="text-lg font-semibold text-white mb-2">About Us</h3>
+                <ul class="text-gray-300 space-y-1">
+                    <li><b>Front/Back End:</b> Aleta, Francis Kim M.</li>
+                    <li><b>Front/Back End:</b> De Alday, Jade Anthony C.</li>
+                    <li><b>Front End:</b> Dorado, Jazer Neil O.</li>
+                    <li><b>Non-Technical Leader:</b> Ellio, James Young G.</li>
+                    <li><b>Technical Leader:</b> Lozañes, Xyrus Jehan B.</li>
+                    <li><b>Test Framer:</b> Recto, Janice M.</li>
+                    <li><b>Test Framer:</b> Vindiola, Nico C.</li>
+                </ul>
             </div>
         </div>
     </footer>
