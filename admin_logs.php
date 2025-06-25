@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'db.php';
+require 'db.php'; // This should provide $pdo connection
 require 'includes/theme.php';
 
 // Check if user is logged in
@@ -29,14 +29,8 @@ $port = 47909;
 
 $mysqli = new mysqli($host, $username, $password, $dbname, $port);
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
-$userId = $_SESSION['user_id'];
 
-// Get all users
 $users = [];
 
 try {
@@ -64,21 +58,18 @@ try {
         ORDER BY u.role, u.first_name, u.last_name
     ";
 
-    $stmt = $conn->prepare($query);
+    // Use the PDO connection from db.php
+    $stmt = $pdo->prepare($query);
     
     if (!$stmt) {
-        throw new Exception("Query preparation failed: " . $conn->error);
+        throw new Exception("Query preparation failed: " . $pdo->errorInfo()[2]);
     }
 
     if (!$stmt->execute()) {
-        throw new Exception("Query execution failed: " . $stmt->error);
+        throw new Exception("Query execution failed: " . $stmt->errorInfo()[2]);
     }
 
-    $result = $stmt->get_result();
-    
-    while ($row = $result->fetch_assoc()) {
-        $users[] = $row;
-    }
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (Exception $e) {
     $error_message = $e->getMessage();
