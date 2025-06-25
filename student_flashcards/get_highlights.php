@@ -10,10 +10,13 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Database configuration
-$db_host = 'localhost';
-$db_user = 'root';
-$db_pass = '';
-$db_name = 'learnmate';
+$host = 'switchyard.proxy.rlwy.net';
+$dbname = 'railway';
+$username = 'root';
+$password = 'mfwZMSewsBKfBJQOdeOmyqMZoRGwewMI'; // From MYSQL_ROOT_PASSWORD
+$port = 47909;
+
+$mysqli = new mysqli($host, $username, $password, $dbname, $port);
 
 // Create connection
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
