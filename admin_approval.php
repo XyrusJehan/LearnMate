@@ -1,10 +1,11 @@
 <?php
+// MUST be the very first thing in the file
+session_start();
+
 // admin_approval.php
 require 'db.php';
 require 'approval_mailer.php';
 require 'includes/theme.php';
-
-session_start();
 
 // Check if user is admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
