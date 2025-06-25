@@ -49,7 +49,7 @@ try {
     $stats['total_classes'] = $stmt->fetch()['count'];
     
     // Total groups
-    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM 'groups'");
+  $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM `groups`");
     $stmt->execute();
     $stats['total_groups'] = $stmt->fetch()['count'];
     
