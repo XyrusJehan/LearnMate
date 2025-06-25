@@ -43,12 +43,12 @@ if (isset($_GET['delete'])) {
         }
         
         // Get group image path before deletion
-        $stmt = $pdo->prepare("SELECT image_url FROM groups WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT image_url FROM `groups` WHERE id = ?");
         $stmt->execute([$groupId]);
         $group = $stmt->fetch();
         
         // Delete the group
-        $stmt = $pdo->prepare("DELETE FROM groups WHERE id = ?");
+        $stmt = $pdo->prepare("DELETE FROM `groups` WHERE id = ?");
         $stmt->execute([$groupId]);
         
         $pdo->commit();
@@ -91,7 +91,7 @@ if (isset($_POST['add_group_name'])) {
         }
     }
 
-    $stmt = $pdo->prepare("INSERT INTO groups (name, description,  privacy, created_by, image_url, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+    $stmt = $pdo->prepare("INSERT INTO `groups` (name, description, privacy, created_by, image_url, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
     if ($stmt->execute([$name, $description,  $privacy, $created_by, $image_url])) {
         header('Location: admin_group.php?added=1');
         exit();
@@ -111,7 +111,7 @@ if (isset($_POST['edit_group_id'])) {
     $image_url = null;
 
     // Get current image
-    $stmt = $pdo->prepare("SELECT image_url FROM groups WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT image_url FROM `groups` WHERE id = ?");
     $stmt->execute([$id]);
     $group = $stmt->fetch();
     $current_image = $group ? $group['image_url'] : null;
@@ -137,7 +137,7 @@ if (isset($_POST['edit_group_id'])) {
         $image_url = $current_image;
     }
 
-    $stmt = $pdo->prepare("UPDATE groups SET name=?, description=?,  privacy=?, image_url=? WHERE id=?");
+    $stmt = $pdo->prepare("UPDATE `groups` SET name=?, description=?,  privacy=?, image_url=? WHERE id=?");
     if ($stmt->execute([$name, $description,  $privacy, $image_url, $id])) {
         header('Location: admin_group.php?edited=1');
         exit();
@@ -158,7 +158,7 @@ $query = "SELECT
             COUNT(gm.user_id) as member_count,
             u.first_name as creator_first_name,
             u.last_name as creator_last_name
-          FROM groups g
+          FROM `groups` g
           LEFT JOIN group_members gm ON g.id = gm.group_id
           LEFT JOIN users u ON g.created_by = u.id
           WHERE 1=1";
@@ -180,7 +180,7 @@ if (!empty($privacy)) {
 $query .= " GROUP BY g.id ORDER BY g.created_at DESC";
 
 // Get total count for pagination
-$countQuery = "SELECT COUNT(*) as total FROM groups";
+$countQuery = "SELECT COUNT(*) as total FROM `groups`";
 $countStmt = $pdo->prepare($countQuery);
 $countStmt->execute();
 $totalGroups = $countStmt->fetch()['total'];
