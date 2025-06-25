@@ -21,14 +21,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_theme'])) {
     }
 }
 
-// Database configuration
-$db_host = 'localhost';
-$db_user = 'root';
-$db_pass = '';
-$db_name = 'learnmate';
+$host = 'switchyard.proxy.rlwy.net';
+$dbname = 'railway';
+$username = 'root';
+$password = 'mfwZMSewsBKfBJQOdeOmyqMZoRGwewMI'; // From MYSQL_ROOT_PASSWORD
+$port = 47909;
 
-// Create connection
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+$mysqli = new mysqli($host, $username, $password, $dbname, $port);
 
 // Check connection
 if ($conn->connect_error) {
