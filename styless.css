@@ -1,0 +1,334 @@
+:root {
+    --primary: #7E22CE;
+    --primary-light: #A855F7;
+    --secondary: #F3E8FF;
+    --text: #1F2937;
+    --text-light: #6B7280;
+    --light: #FFFFFF;
+    --border: #E5E7EB;
+    --error: #EF4444;
+    --brand-color: #5D3FD3;
+    --google-blue: #4285F4;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #F9FAFB;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    overflow-x: hidden;
+}
+
+.auth-container {
+    display: flex;
+    background: var(--light);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    width: 95vw;
+    min-height: min-content;
+    max-width: 900px;
+    overflow: auto;
+    margin: 20px 0;
+}
+
+.signin-section {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    min-height: min-content;
+    overflow: visible;
+}
+
+.signin-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.signin-header h1 {
+    color: var(--text);
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.brand-name {
+    color: var(--brand-color);
+    font-weight: 700;
+}
+
+.signin-subtitle {
+    color: var(--text-light);
+    font-size: 14px;
+}
+
+.social-login {
+    margin-bottom: 25px;
+}
+
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--light);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.google-btn:hover {
+    background: #F8FAFC;
+    border-color: #D1D5DB;
+}
+
+.google-logo {
+    width: 18px;
+    height: 18px;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    color: var(--text-light);
+    font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid var(--border);
+}
+
+.divider span {
+    padding: 0 12px;
+}
+
+.signin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-with-icon {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+}
+
+.password-container {
+    position: relative;
+}
+
+.password-container input {
+    padding-right: 40px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+}
+
+.eye-icon {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: all 0.3s ease;
+    position: absolute;
+}
+
+.eye-open {
+    display: none;
+    opacity: 0;
+}
+
+.eye-closed {
+    display: block;
+    opacity: 1;
+}
+
+.password-visible .eye-closed {
+    display: none;
+    opacity: 0;
+}
+
+.password-visible .eye-open {
+    display: block;
+    opacity: 1;
+}
+
+.toggle-password:hover .eye-icon {
+    color: var(--primary);
+}
+
+.input-with-icon input {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.input-with-icon input:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.forgot-password {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.btn {
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    text-align: center;
+    width: 100%;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(126, 34, 206, 0.2);
+}
+
+.welcome-section {
+    flex: 1;
+    background: linear-gradient(135deg, var(--brand-color), #7E57C2);
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: var(--light);
+    min-height: min-content;
+}
+
+.welcome-content h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.welcome-content p {
+    font-size: 14px;
+    margin-bottom: 25px;
+    opacity: 0.9;
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: var(--light);
+    border: 1px solid var(--light);
+}
+
+.btn-outline:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+    .auth-container {
+        flex-direction: column;
+        height: auto;
+        min-height: auto;
+    }
+    
+    .signin-section, .welcome-section {
+        padding: 30px;
+        flex: none;
+    }
+    
+    body {
+        padding: 10px;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-container {
+        width: 100%;
+        border-radius: 0;
+        margin: 0;
+    }
+    
+    .signin-section, .welcome-section {
+        padding: 25px 20px;
+    }
+}

@@ -1,0 +1,201 @@
+/demo-flashcard/
+│
+├── assets/
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   └── script.js
+│   └── images/
+│
+├── includes/
+│   ├── config.php
+│   └── db.php
+│
+├── index.php (homepage/dashboard)
+├── pdf-viewer.php
+├── flashcards.php
+└── upload.php
+
+
+CREATE TABLE pdf_files (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    original_filename VARCHAR(255) NOT NULL,
+    storage_path VARCHAR(512) NOT NULL,
+    file_size BIGINT NOT NULL,
+    upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tags (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE flashcards (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    front_content TEXT NOT NULL,
+    back_content TEXT,
+    difficulty_level TINYINT,
+    last_reviewed TIMESTAMP NULL,
+    next_review TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE flashcard_tags (
+    flashcard_id INT NOT NULL,
+    tag_id INT NOT NULL,
+    PRIMARY KEY (flashcard_id, tag_id),
+    FOREIGN KEY (flashcard_id) REFERENCES flashcards(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+);
+
+CREATE TABLE highlights (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pdf_file_id INT NOT NULL,
+    page_number INT NOT NULL,
+    text_content TEXT NOT NULL,
+    position_data JSON,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (pdf_file_id) REFERENCES pdf_files(id) ON DELETE CASCADE
+);
+
+
+
+----------------------
+
+
+CREATE TABLE pdf_files (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    original_filename VARCHAR(255) NOT NULL,
+    storage_path VARCHAR(512) NOT NULL,
+    file_size BIGINT NOT NULL,
+    upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tags (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE flashcards (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    front_content TEXT NOT NULL,
+    back_content TEXT,
+    difficulty_level TINYINT,
+    last_reviewed TIMESTAMP NULL,
+    next_review TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE flashcard_tags (
+    flashcard_id INT NOT NULL,
+    tag_id INT NOT NULL,
+    PRIMARY KEY (flashcard_id, tag_id),
+    FOREIGN KEY (flashcard_id) REFERENCES flashcards(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+);
+
+
+
+
+CREATE TABLE highlights (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pdf_file_id INT NOT NULL,
+    page_number INT NOT NULL,
+    text_content TEXT NOT NULL,
+    position_data JSON,
+    highlight_type ENUM('term', 'definition') NOT NULL DEFAULT 'term',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (pdf_file_id) REFERENCES pdf_files(id) ON DELETE CASCADE
+);
+
+
+------------------------------------------------
+
+
+
+
+CREATE TABLE pdf_files (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    original_filename VARCHAR(255) NOT NULL,
+    storage_path VARCHAR(512) NOT NULL,
+    file_size BIGINT NOT NULL,
+    upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tags (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE flashcards (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    front_content TEXT NOT NULL,
+    back_content TEXT,
+    difficulty_level TINYINT,
+    last_reviewed TIMESTAMP NULL,
+    next_review TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE flashcard_tags (
+    flashcard_id INT NOT NULL,
+    tag_id INT NOT NULL,
+    PRIMARY KEY (flashcard_id, tag_id),
+    FOREIGN KEY (flashcard_id) REFERENCES flashcards(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+);
+
+-- Terms table (for vocabulary words/phrases)
+CREATE TABLE IF NOT EXISTS terms (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    term_text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Definitions table
+CREATE TABLE IF NOT EXISTS definitions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    definition_text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Term-Definition relationships
+CREATE TABLE IF NOT EXISTS term_definitions (
+    term_id INT NOT NULL,
+    definition_id INT NOT NULL,
+    PRIMARY KEY (term_id, definition_id),
+    FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE CASCADE,
+    FOREIGN KEY (definition_id) REFERENCES definitions(id) ON DELETE CASCADE
+);
+
+-- Modified highlights table
+CREATE TABLE IF NOT EXISTS highlights (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pdf_file_id INT NOT NULL,
+    page_number INT NOT NULL,
+    content_type ENUM('term', 'definition') NOT NULL,
+    content_id INT NOT NULL, -- references either terms.id or definitions.id
+    position_data JSON,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (pdf_file_id) REFERENCES pdf_files(id) ON DELETE CASCADE
+);
+
+
+----UPDATE-----
+-- Create folders/groups table
+CREATE TABLE IF NOT EXISTS folders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Add folder_id to flashcards table
+ALTER TABLE flashcards ADD COLUMN folder_id INT NULL AFTER id;
+ALTER TABLE flashcards ADD FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE SET NULL;
+
+ALTER TABLE folders ADD COLUMN parent_id INT NULL AFTER name;
+ALTER TABLE folders ADD CONSTRAINT fk_parent FOREIGN KEY (parent_id) REFERENCES folders(id) ON DELETE CASCADE;

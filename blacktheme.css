@@ -1,0 +1,113 @@
+:root {
+    --primary: #BB86FC;
+    --primary-light: #D0BCFF;
+    --primary-dark: #3700B3;
+    --secondary: #03DAC6;
+    --success: #03DAC6;
+    --warning: #FFCA28;
+    --danger: #CF6679;
+    --text-light: #FFFFFF;
+    --text-medium: #E0E0E0;
+    --text-dark: #CCCCCC;
+    --bg-black: #000000;
+    --border-light: #333333;
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.7);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.7), 0 2px 4px -1px rgba(0, 0, 0, 0.8);
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  body {
+    background-color: var(--bg-black);
+    color: var(--text-light);
+    line-height: 1.5;
+  }
+  
+  .sidebar {
+    background-color: #1A1A1A;
+    border-right: 1px solid var(--border-light);
+  }
+  
+  .nav-item:hover, .nav-item.active, .dropdown-toggle:hover, .dropdown-toggle.active {
+    background-color: #2A2A2A;
+    color: var(--primary-light);
+  }
+  
+  .dropdown-menu {
+    background-color: #1A1A1A;
+  }
+  
+  .header {
+    background-color: #1A1A1A;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .header-title {
+    color: var(--text-light);
+  }
+  
+  .header-btn {
+    background-color: #2A2A2A;
+    color: var(--text-medium);
+  }
+  
+  .settings-card {
+    background-color: #1A1A1A;
+    border: 1px solid var(--border-light);
+  }
+  
+  .form-control {
+    background-color: #2A2A2A;
+    color: var(--text-light);
+    border: 1px solid var(--border-light);
+  }
+  
+  .form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.2);
+  }
+  
+  .btn-primary {
+    background-color: var(--primary);
+    color: var(--bg-black);
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  .alert-success {
+    background-color: #0A3D2E;
+    color: var(--success);
+  }
+  
+  .alert-danger {
+    background-color: #451B1E;
+    color: var(--danger);
+  }
+  
+  .bottom-nav {
+    background-color: #1A1A1A;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+  }
+  
+  .nav-item-mobile {
+    color: var(--text-medium);
+  }
+  
+  .nav-item-mobile.active {
+    color: var(--primary);
+  }
+  
+  .fab {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: var(--bg-black);
+  }
