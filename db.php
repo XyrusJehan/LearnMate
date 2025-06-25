@@ -3,8 +3,8 @@
 $host = 'ballast.proxy.rlwy.net'; // or 'ballast.proxy.rlwy.net' for public URL
 $dbname = 'railway';
 $username = 'root';
-$password = 'uymFbfTgQOkyWluXcdYlNpIlVfCwqANX';
-$port = 33262; // or 33262 if using the public URL
+$password = 'mfwZMSewsBKfBJQOdeOmyqMZoRGwewMI';
+$port = 3306; // or 33262 if using the public URL
 
 try {
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4", $username, $password);
