@@ -1,6 +1,6 @@
 <?php
 // db.php
-$host = 'ballast.proxy.rlwy.net'; // or 'ballast.proxy.rlwy.net' for public URL
+$host = 'switchyard.proxy.rlwy.net'; // or 'ballast.proxy.rlwy.net' for public URL
 $dbname = 'railway';
 $username = 'root';
 $password = 'mfwZMSewsBKfBJQOdeOmyqMZoRGwewMI';
