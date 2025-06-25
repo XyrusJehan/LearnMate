@@ -19,10 +19,14 @@ $theme = getCurrentTheme();
 // Handle PDF file upload
 $uploadMessage = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_file'])) {
-    $uploadDir = 'uploads/';
-    if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0777, true);
+$uploadDir = 'uploads/';
+if (!file_exists($uploadDir)) {
+    if (!mkdir($uploadDir, 0755, true)) {
+        $uploadMessage = '<div class="alert"><i class="fas fa-exclamation-circle"></i> Failed to create upload directory.</div>';
+        // Log the error for debugging
+        error_log("Failed to create directory: " . $uploadDir);
     }
+}
     
     $originalFilename = basename($_FILES['pdf_file']['name']);
     $targetFile = $uploadDir . uniqid() . '_' . $originalFilename;
