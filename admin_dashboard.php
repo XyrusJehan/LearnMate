@@ -47,9 +47,9 @@ try {
     $stats['total_students'] = $stmt->fetch()['count'];
     
     // Get class count
-    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM groups");
-    $stmt->execute();
-    $stats['total_classes'] = $stmt->fetch()['count'];
+$stmt = $pdo->prepare("SELECT COUNT(*) as count FROM `groups`");
+$stmt->execute();
+$stats['total_classes'] = $stmt->fetch()['count'];
     
     // User Growth: registrations per month (last 12 months)
     $stmt = $pdo->prepare("
@@ -73,13 +73,13 @@ try {
     }
 
     // Group Growth: groups created per month (last 12 months)
-    $stmt = $pdo->prepare("
-        SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count
-        FROM groups
-        WHERE created_at >= DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 11 MONTH), '%Y-%m-01')
-        GROUP BY month
-        ORDER BY month ASC
-    ");
+$stmt = $pdo->prepare("
+    SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count
+    FROM `groups`
+    WHERE created_at >= DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 11 MONTH), '%Y-%m-01')
+    GROUP BY month
+    ORDER BY month ASC
+");
     $stmt->execute();
     $groupGrowth = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $groupGrowthMap = array_column($groupGrowth, 'count', 'month');
@@ -129,7 +129,7 @@ try {
     $stmt->execute();
     $recentClasses = $stmt->fetchAll();
     // Get recently added groups
-    $stmt = $pdo->prepare("SELECT g.name, g.created_at, u.first_name, u.last_name FROM groups g LEFT JOIN users u ON g.created_by = u.id ORDER BY g.created_at DESC LIMIT 5");
+    $stmt = $pdo->prepare("SELECT g.name, g.created_at, u.first_name, u.last_name FROM `groups` g LEFT JOIN users u ON g.created_by = u.id ORDER BY g.created_at DESC LIMIT 5");
     $stmt->execute();
     $recentGroups = $stmt->fetchAll();
     
