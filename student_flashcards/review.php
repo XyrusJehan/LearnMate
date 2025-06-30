@@ -17,13 +17,26 @@ $allFolders = [];
 $stmt = $pdo->prepare("SELECT id, name FROM folders WHERE user_id = ? ORDER BY name");
 $stmt->execute([$studentId]);
 $allFolders = $stmt->fetchAll();
+
+// Get active folder from URL or session
 $activeFolderId = isset($_GET['folder_id']) ? (int)$_GET['folder_id'] : null;
+if ($activeFolderId !== null) {
+    $_SESSION['active_folder_id'] = $activeFolderId;
+} elseif (isset($_SESSION['active_folder_id'])) {
+    $activeFolderId = $_SESSION['active_folder_id'];
+}
 
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
     $ajaxFolderId = isset($_POST['folder_id']) ? (int)$_POST['folder_id'] : $activeFolderId;
-    if ($_POST['action'] === 'start' || !isset($_SESSION['review_flashcards']) || (isset($_SESSION['review_flashcards_folder']) && $_SESSION['review_flashcards_folder'] !== $ajaxFolderId)) {
+    
+    if ($_POST['action'] === 'start' || !isset($_SESSION['review_flashcards'])) {
+        // Clear previous session if folder changed
+        if (isset($_SESSION['review_flashcards_folder']) && $_SESSION['review_flashcards_folder'] !== $ajaxFolderId) {
+            unset($_SESSION['review_flashcards']);
+        }
+        
         // Fetch all flashcards for this user and folder
         if ($ajaxFolderId) {
             $stmt = $pdo->prepare("
@@ -47,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             ");
             $stmt->execute([$studentId]);
         }
+        
         $cards = $stmt->fetchAll();
         $_SESSION['review_flashcards'] = [
             'cards' => $cards,
@@ -55,10 +69,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             'incorrect' => 0
         ];
         $_SESSION['review_flashcards_folder'] = $ajaxFolderId;
+        
         if (count($cards) === 0) {
             echo json_encode(['status' => 'empty']);
             exit;
         }
+        
         $card = $cards[0];
         echo json_encode([
             'status' => 'ok',
@@ -70,14 +86,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         ]);
         exit;
     }
+    
     if ($_POST['action'] === 'check') {
         $answer = trim($_POST['answer'] ?? '');
         $session = &$_SESSION['review_flashcards'];
         $card = $session['cards'][$session['index']];
         $isCorrect = (mb_strtolower($answer) === mb_strtolower($card['term_text']));
+        
         if ($isCorrect) {
             $session['correct']++;
-            // Update card_progress for mastery and studied stats
+            // Update card_progress
             $progressStmt = $pdo->prepare("
                 INSERT INTO card_progress (student_id, card_id, correct_attempts, total_attempts, accuracy, status)
                 VALUES (?, ?, 1, 1, 100, 'learned')
@@ -90,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $progressStmt->execute([$studentId, $card['id']]);
         } else {
             $session['incorrect']++;
-            // Update card_progress for incorrect attempt
+            // Update card_progress
             $progressStmt = $pdo->prepare("
                 INSERT INTO card_progress (student_id, card_id, correct_attempts, total_attempts, accuracy, status)
                 VALUES (?, ?, 0, 1, 0, 'in_progress')
@@ -101,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             ");
             $progressStmt->execute([$studentId, $card['id']]);
         }
+        
         echo json_encode([
             'status' => 'ok',
             'isCorrect' => $isCorrect,
@@ -110,9 +129,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         ]);
         exit;
     }
+    
     if ($_POST['action'] === 'next') {
         $session = &$_SESSION['review_flashcards'];
         $session['index']++;
+        
         if ($session['index'] >= count($session['cards'])) {
             echo json_encode([
                 'status' => 'done',
@@ -123,6 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             unset($_SESSION['review_flashcards']);
             exit;
         }
+        
         $card = $session['cards'][$session['index']];
         echo json_encode([
             'status' => 'ok',
@@ -134,6 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         ]);
         exit;
     }
+    
     exit;
 }
 
@@ -540,7 +563,7 @@ $theme = getCurrentTheme();
         </h1>
         
         <div class="folder-selector">
-            <select id="folderSelect" class="folder-select" onchange="window.location.href='review.php?folder_id='+this.value">
+            <select id="folderSelect" class="folder-select">
                 <option value="">All Folders</option>
                 <?php foreach ($allFolders as $folder): ?>
                     <option value="<?php echo $folder['id']; ?>" <?php if ($activeFolderId == $folder['id']) echo 'selected'; ?>>
@@ -630,7 +653,7 @@ $theme = getCurrentTheme();
     const finalIncorrect = document.getElementById('finalIncorrect');
     const reviewAgainBtn = document.getElementById('reviewAgainBtn');
     const emptyState = document.getElementById('emptyState');
-    const activeFolderId = <?php echo $activeFolderId ? (int)$activeFolderId : 'null'; ?>;
+    const folderSelect = document.getElementById('folderSelect');
 
     function updateProgress() {
         const progress = currentState.progress-1;
@@ -675,14 +698,24 @@ $theme = getCurrentTheme();
         emptyState.style.display = '';
         progressFill.style.width = '0%';
         progressText.textContent = '0';
+        totalText.textContent = '0';
         percentageText.textContent = '0';
+        correctCount.textContent = '0';
+        incorrectCount.textContent = '0';
     }
 
     function startReview() {
+        const folderId = folderSelect.value;
         let body = 'action=start';
-        if (activeFolderId) body += '&folder_id=' + encodeURIComponent(activeFolderId);
-        fetch('review.php', { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body })
-        .then(r=>r.json()).then(data => {
+        if (folderId) body += '&folder_id=' + encodeURIComponent(folderId);
+        
+        fetch('review.php', { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}, 
+            body 
+        })
+        .then(r => r.json())
+        .then(data => {
             if (data.status === 'empty') {
                 showEmpty();
             } else {
@@ -693,6 +726,9 @@ $theme = getCurrentTheme();
                 updateProgress();
                 showCard(data.definition);
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
         });
     }
 
@@ -701,11 +737,17 @@ $theme = getCurrentTheme();
         const answer = answerInput.value.trim();
         if (!answer) return;
         
+        const folderId = folderSelect.value;
         let body = 'action=check&answer=' + encodeURIComponent(answer);
-        if (activeFolderId) body += '&folder_id=' + encodeURIComponent(activeFolderId);
+        if (folderId) body += '&folder_id=' + encodeURIComponent(folderId);
         
-        fetch('review.php', { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body })
-        .then(r=>r.json()).then(data => {
+        fetch('review.php', { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}, 
+            body 
+        })
+        .then(r => r.json())
+        .then(data => {
             if (data.status === 'ok') {
                 if (data.isCorrect) {
                     feedback.textContent = '✓ Correct! Well done!';
@@ -722,15 +764,24 @@ $theme = getCurrentTheme();
                 currentState.incorrect = data.incorrect;
                 updateProgress();
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
         });
     }
 
     function nextCard() {
+        const folderId = folderSelect.value;
         let body = 'action=next';
-        if (activeFolderId) body += '&folder_id=' + encodeURIComponent(activeFolderId);
+        if (folderId) body += '&folder_id=' + encodeURIComponent(folderId);
         
-        fetch('review.php', { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body })
-        .then(r=>r.json()).then(data => {
+        fetch('review.php', { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}, 
+            body 
+        })
+        .then(r => r.json())
+        .then(data => {
             if (data.status === 'done') {
                 showCompletion();
             } else if (data.status === 'ok') {
@@ -741,9 +792,13 @@ $theme = getCurrentTheme();
                 updateProgress();
                 showCard(data.definition);
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
         });
     }
 
+    // Event listeners
     answerInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') checkAnswer();
     });
@@ -756,8 +811,21 @@ $theme = getCurrentTheme();
         startReview();
     });
     
+    folderSelect.addEventListener('change', function() {
+        const folderId = this.value;
+        const url = folderId ? `review.php?folder_id=${folderId}` : 'review.php';
+        window.history.pushState({}, '', url);
+        startReview();
+    });
+    
     // Start on load
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const folderId = urlParams.get('folder_id');
+        if (folderId) {
+            folderSelect.value = folderId;
+        }
         startReview();
     });
     </script>
