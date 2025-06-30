@@ -1,9 +1,11 @@
 <?php
-ob_start(); // Add this as the very first line
+// flashcard.php
+// Combined Flashcard Dashboard with Create Flashcards section
+
+// Start session and check authentication
 session_start();
 require '../db.php';
 require '../includes/theme.php';
-// ... rest of your code
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -15,48 +17,34 @@ if (!isset($_SESSION['user_id'])) {
 $theme = getCurrentTheme();
 
 // Handle PDF file upload
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_folder'])) {
-    $folderName = $conn->real_escape_string(trim($_POST['folder_name']));
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_file'])) {
+    // Use Railway's persistent storage if available, otherwise fallback to local
+    $uploadDir = getenv('RAILWAY_VOLUME_MOUNT_PATH') ? 
+        getenv('RAILWAY_VOLUME_MOUNT_PATH') . '/uploads/' : 
+        'uploads/';
     
-    if (!empty($folderName)) {
-        if (!isset($_SESSION['user_id'])) {
-            // Store error in session and redirect
-            $_SESSION['error'] = "You must be logged in to create folders";
-            header("Location: flashcard.php");
-            exit();
-        }
-
-        $userId = $_SESSION['user_id'];
-        
-        $checkStmt = $conn->prepare("SELECT id FROM folders WHERE name = ? AND user_id = ?");
-        $checkStmt->bind_param("si", $folderName, $userId);
-        $checkStmt->execute();
-        $checkResult = $checkStmt->get_result();
-        
-        if ($checkResult->num_rows > 0) {
-            $_SESSION['error'] = "A folder with that name already exists";
-            header("Location: flashcard.php");
-            exit();
-        } else {
-            $stmt = $conn->prepare("INSERT INTO folders (name, user_id, created_at) VALUES (?, ?, NOW())");
-            $stmt->bind_param("si", $folderName, $userId);
-            
-            if ($stmt->execute()) {
-                $newFolderId = $conn->insert_id;
-                $_SESSION['success'] = "Folder created successfully!";
-                $_SESSION['active_folder'] = $newFolderId;
-                header("Location: flashcard.php?folder_id=" . $newFolderId);
-                exit();
-            } else {
-                $_SESSION['error'] = "Error creating folder: " . $conn->error;
-                header("Location: flashcard.php");
-                exit();
-            }
-        }
+    // Create directory if it doesn't exist
+    if (!file_exists($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+    
+    $originalFilename = basename($_FILES['pdf_file']['name']);
+    $targetFile = $uploadDir . uniqid() . '_' . $originalFilename;
+    $fileSize = $_FILES['pdf_file']['size'];
+    
+    // Check if file is a PDF
+    $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+    if ($fileType !== 'pdf') {
+        $uploadMessage = '<div class="alert"><i class="fas fa-exclamation-circle"></i> Only PDF files are allowed.</div>';
+    } elseif ($fileSize > 5000000) { // 5MB limit
+        $uploadMessage = '<div class="alert"><i class="fas fa-exclamation-circle"></i> File is too large. Maximum 5MB allowed.</div>';
+    } elseif (move_uploaded_file($_FILES['pdf_file']['tmp_name'], $targetFile)) {
+        // Insert into database with user_id
+        $stmt = $pdo->prepare("INSERT INTO pdf_files (user_id, original_filename, storage_path, file_size) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$_SESSION['user_id'], $originalFilename, $targetFile, $fileSize]);
+        $uploadMessage = '<div class="success"><i class="fas fa-check-circle"></i> PDF uploaded successfully!</div>';
     } else {
-        $_SESSION['error'] = "Folder name cannot be empty";
-        header("Location: flashcard.php");
-        exit();
+        $uploadMessage = '<div class="alert"><i class="fas fa-exclamation-circle"></i> Sorry, there was an error uploading your file.</div>';
     }
 }
 
