@@ -17,18 +17,15 @@ if (!isset($_SESSION['user_id'])) {
 $theme = getCurrentTheme();
 
 // Handle PDF file upload
-$uploadMessage = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_file'])) {
-    $uploadDir = getenv('RAILWAY_VOLUME_MOUNT_PATH') ? getenv('RAILWAY_VOLUME_MOUNT_PATH') . '/uploads/' : 'uploads/';
+    // Use Railway's persistent storage if available, otherwise fallback to local
+    $uploadDir = getenv('RAILWAY_VOLUME_MOUNT_PATH') ? 
+        getenv('RAILWAY_VOLUME_MOUNT_PATH') . '/uploads/' : 
+        'uploads/';
     
-    // Create directory if it doesn't exist with proper permissions
+    // Create directory if it doesn't exist
     if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0755, true); // 0755 gives owner rwx and others rx
-    }
-    
-    // Ensure directory is writable
-    if (!is_writable($uploadDir)) {
-        chmod($uploadDir, 0755);
+        mkdir($uploadDir, 0755, true);
     }
     
     $originalFilename = basename($_FILES['pdf_file']['name']);
@@ -39,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_file'])) {
     $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
     if ($fileType !== 'pdf') {
         $uploadMessage = '<div class="alert"><i class="fas fa-exclamation-circle"></i> Only PDF files are allowed.</div>';
-    } elseif ($_FILES['pdf_file']['size'] > 5000000) { // 5MB limit
+    } elseif ($fileSize > 5000000) { // 5MB limit
         $uploadMessage = '<div class="alert"><i class="fas fa-exclamation-circle"></i> File is too large. Maximum 5MB allowed.</div>';
     } elseif (move_uploaded_file($_FILES['pdf_file']['tmp_name'], $targetFile)) {
         // Insert into database with user_id
