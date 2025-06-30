@@ -17,7 +17,7 @@ if (!isset($_SESSION['user_id'])) {
 $theme = getCurrentTheme();
 
 // Handle PDF file upload
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_file'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_files'])) {
     // Use Railway's persistent storage if available, otherwise fallback to local
     $uploadDir = getenv('RAILWAY_VOLUME_MOUNT_PATH') ? 
         getenv('RAILWAY_VOLUME_MOUNT_PATH') . '/uploads/' : 
@@ -28,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_file'])) {
         mkdir($uploadDir, 0755, true);
     }
     
-    $originalFilename = basename($_FILES['pdf_file']['name']);
+    $originalFilename = basename($_FILES['pdf_files']['name']);
     $targetFile = $uploadDir . uniqid() . '_' . $originalFilename;
-    $fileSize = $_FILES['pdf_file']['size'];
+    $fileSize = $_FILES['pdf_files']['size'];
     
     // Check if file is a PDF
     $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdf_file'])) {
         $uploadMessage = '<div class="alert"><i class="fas fa-exclamation-circle"></i> Only PDF files are allowed.</div>';
     } elseif ($fileSize > 5000000) { // 5MB limit
         $uploadMessage = '<div class="alert"><i class="fas fa-exclamation-circle"></i> File is too large. Maximum 5MB allowed.</div>';
-    } elseif (move_uploaded_file($_FILES['pdf_file']['tmp_name'], $targetFile)) {
+    } elseif (move_uploaded_file($_FILES['pdf_files']['tmp_name'], $targetFile)) {
         // Insert into database with user_id
         $stmt = $pdo->prepare("INSERT INTO pdf_files (user_id, original_filename, storage_path, file_size) VALUES (?, ?, ?, ?)");
         $stmt->execute([$_SESSION['user_id'], $originalFilename, $targetFile, $fileSize]);
